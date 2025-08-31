@@ -8,6 +8,7 @@ import {
   getSortedRowModel,
   ColumnDef,
   useReactTable,
+  SortingState,
 } from "@tanstack/react-table";
 
 interface DataTableProps<T> {
@@ -16,7 +17,7 @@ interface DataTableProps<T> {
 }
 
 export function DataTable<T>({ columns, data }: DataTableProps<T>) {
-  const [sorting, setSorting] = React.useState([]);
+  const [sorting, setSorting] = React.useState<SortingState>([]);
 
   const table = useReactTable({
     data,
@@ -44,7 +45,7 @@ export function DataTable<T>({ columns, data }: DataTableProps<T>) {
                   {{
                     asc: " 🔼",
                     desc: " 🔽",
-                  }[header.column.getIsSorted()] ?? null}
+                  }[header.column.getIsSorted()] === "asc"}
                 </th>
               ))}
             </tr>
