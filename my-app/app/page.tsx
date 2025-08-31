@@ -5,6 +5,7 @@ import { getResources } from "@/lib/resources";
 import { ResourceWrapper } from "@/types/resource";
 import { columns } from "../app/columns"; 
 import { DataTable } from "@/app/data-table";
+import FirestoreData from "@/components/FirestoreData";
 
 export default function Page() {
   const [data, setData] = useState<ResourceWrapper[]>([]);
@@ -14,8 +15,8 @@ export default function Page() {
   }, []);
 
   return (
-    <div className="p-6">
-      <DataTable columns={columns} data={data} />
-    </div>
+    <FirestoreData>
+      {(data) => <DataTable columns={columns} data={data} />}
+    </FirestoreData>
   );
 }
