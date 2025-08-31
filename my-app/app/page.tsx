@@ -1,25 +1,21 @@
-import { columns, Payment } from "./columns"
-import { DataTable } from "./data-table"
+"use client";
 
-async function getData(): Promise<Payment[]> {
-  // Fetch data from your API here.
-  return [
-    {
-      id: "728ed52f",
-      amount: 100,
-      status: "pending",
-      email: "m@example.com",
-    },
-    // ...
-  ]
-}
+import { useEffect, useState } from "react";
+import { getResources } from "@/lib/resources";
+import { ResourceWrapper } from "@/types/resource";
+import { columns } from "../app/columns"; 
+import { DataTable } from "@/app/data-table";
 
-export default async function DemoPage() {
-  const data = await getData()
+export default function Page() {
+  const [data, setData] = useState<ResourceWrapper[]>([]);
+
+  useEffect(() => {
+    getResources().then(setData);
+  }, []);
 
   return (
-    <div className="container mx-auto py-10">
+    <div className="p-6">
       <DataTable columns={columns} data={data} />
     </div>
-  )
+  );
 }
