@@ -21,8 +21,3 @@ const firebaseConfig = {
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 export const db = getFirestore(app);
 
-if (typeof window !== "undefined") {
-    isSupported().then(supported => {
-      if (supported) getAnalytics(app);
-    });
-  }
