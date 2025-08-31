@@ -1,125 +1,87 @@
-// components/data-table.tsx
 "use client";
 
-import React from "react";
-import { Button } from "@/components/ui/button"
-
+import * as React from "react";
 import {
-  ColumnDef,
   flexRender,
   getCoreRowModel,
-  getExpandedRowModel,
-  useReactTable,
   getPaginationRowModel,
-  SortingState,
   getSortedRowModel,
+  ColumnDef,
+  useReactTable,
 } from "@tanstack/react-table";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { ResourceWrapper } from "@/types/resource";
 
-interface DataTableProps {
-  columns: ColumnDef<ResourceWrapper, any>[];
-  data: ResourceWrapper[];
+interface DataTableProps<T> {
+  columns: ColumnDef<T>[];
+  data: T[];
 }
 
-export function DataTable({ columns, data }: DataTableProps) {
-  const [sorting, setSorting] = React.useState<SortingState>([])
+export function DataTable<T>({ columns, data }: DataTableProps<T>) {
+  const [sorting, setSorting] = React.useState([]);
 
   const table = useReactTable({
     data,
     columns,
-    getCoreRowModel: getCoreRowModel(),
-    getExpandedRowModel: getExpandedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
+    state: { sorting },
     onSortingChange: setSorting,
+    getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    state: {
-      sorting,
-    },
+    getPaginationRowModel: getPaginationRowModel(),
   });
 
-
   return (
-    <div>
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    {flexRender(header.column.columnDef.header, header.getContext())}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows.length ? (
-              table.getRowModel().rows.map((row) => (
-                // normal row
-                <React.Fragment key={row.id}>
-                  <TableRow
-                    onClick={row.getToggleExpandedHandler()}
-                    className="cursor-pointer hover:bg-gray-50"
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id}>
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </TableCell>
-                    ))}
-                  </TableRow>
+    <div className="p-4 bg-white shadow rounded-xl">
+      <table className="w-full border border-gray-200">
+        <thead className="bg-gray-100">
+          {table.getHeaderGroups().map(headerGroup => (
+            <tr key={headerGroup.id}>
+              {headerGroup.headers.map(header => (
+                <th
+                  key={header.id}
+                  className="px-3 py-2 text-left cursor-pointer select-none"
+                  onClick={header.column.getToggleSortingHandler()}
+                >
+                  {flexRender(header.column.columnDef.header, header.getContext())}
+                  {{
+                    asc: " 🔼",
+                    desc: " 🔽",
+                  }[header.column.getIsSorted()] ?? null}
+                </th>
+              ))}
+            </tr>
+          ))}
+        </thead>
+        <tbody>
+          {table.getRowModel().rows.map(row => (
+            <tr key={row.id} className="hover:bg-gray-50">
+              {row.getVisibleCells().map(cell => (
+                <td key={cell.id} className="px-3 py-2 border-t">
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
 
-                  {/* expanded row */}
-                  {row.getIsExpanded() && (
-                    <TableRow key={row.id + "-expanded"} className="bg-gray-100">
-                      <TableCell colSpan={columns.length} className="p-4">
-                        <div className="space-y-2">
-                          <p><strong>Description:</strong> {row.original.resource.humanReadableStr}</p>
-                          <p><strong>AI Summary:</strong> {row.original.resource.aiSummary}</p>
-                          <p><strong>State:</strong> {row.original.resource.metadata.state}</p>
-                          <p><strong>Key:</strong> {row.original.resource.metadata.identifier.key}</p>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </React.Fragment>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <Button
-          variant="outline"
-          size="sm"
+      <div className="flex justify-between items-center mt-2">
+        <button
           onClick={() => table.previousPage()}
           disabled={!table.getCanPreviousPage()}
+          className="px-3 py-1 border rounded disabled:opacity-50"
         >
           Previous
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
+        </button>
+        <span>
+          Page {table.getState().pagination.pageIndex  + 1 } of {table.getPageCount() + 1}
+        </span>
+        <button
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}
+          className="px-3 py-1 border rounded disabled:opacity-50"
         >
           Next
-        </Button>
+        </button>
       </div>
     </div>
-    );
-  }
+  );
+}
